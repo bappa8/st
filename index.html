@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download Speed Test</title>
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #141a26;
+    --panel2: #1b2333;
+    --accent: #2dd4bf;
+    --accent2: #38bdf8;
+    --accent3: #a78bfa;
+    --text: #e6edf3;
+    --muted: #8b9bb4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(900px 500px at 80% -10%, rgba(167,139,250,.18), transparent 60%),
+      radial-gradient(900px 500px at 10% 110%, rgba(45,212,191,.16), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    position: relative;
+    background: linear-gradient(160deg, var(--panel), var(--panel2));
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 24px;
+    padding: 44px 36px 36px;
+    width: 100%;
+    max-width: 460px;
+    text-align: center;
+    box-shadow: 0 24px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .card::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(45,212,191,.5), rgba(56,189,248,.2), rgba(167,139,250,.5));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    opacity: .6;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: .3px;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #2dd4bf, #38bdf8, #a78bfa);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .sub { color: var(--muted); font-size: .88rem; margin-bottom: 34px; }
+
+  .readout { margin: 10px 0 6px; }
+  .value {
+    font-size: 4.6rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(56,189,248,.15);
+  }
+  .unit { color: var(--accent); font-size: .95rem; margin-top: 8px; letter-spacing: 4px; font-weight: 600; text-transform: uppercase; }
+
+  .status {
+    font-size: .88rem; min-height: 20px; margin: 28px 0 22px; font-weight: 500;
+    color: var(--accent2);
+  }
+
+  button {
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    background-size: 200% auto;
+    color: #06231f;
+    border: none;
+    padding: 14px 46px;
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: .4px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, opacity .15s, background-position .4s;
+    box-shadow: 0 8px 26px rgba(45,212,191,.3);
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); background-position: right center; box-shadow: 0 12px 32px rgba(167,139,250,.35); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: .55; cursor: default; }
+
+  footer {
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: .8rem;
+    letter-spacing: .3px;
+  }
+  footer .name {
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+</style>
+<script type='text/javascript' nonce='rE/+7yiidaFb/WTsdytENQ==' src='https://arena.ai/yqkWVSS0zJy3njjBhOkW5HH6sv-VDazE__N-wrvbdgFCRYcCnPaFVuMvTwwh-_DFW47xYrDb2RRBIWvYzVGmt9UFCJz5FIRGL_uIv8WqnMt5UYXqTHm-zq7wOOWcMkVKyIdQAI-kiK4GSs_kSEY5En8aYEfjiW8vBrKb9N2_kliLNo_4Ja-i3ZGcEQFJdZJ3LPSZDP0uEknyoFTPilcuqfn7MJ5sbqMkag8DoSBp2oQU5gVynrtdwEUFY63C9qLF_4yQQ9oa2-DjnxZnBsHM-OiS6FKiqYTIvFjeKxj-J6E6Mwn7jo19ok1XOVcv-Ni2n-nADl2IScNOopj_6wCHN9MdDuvP8NXpUrYsO5U5cRVEDs7zRhobapCWjoYdW1VROFG1sHGIjR-bIJUySwRsnEDktKwVz5uQhcJRbj1MLAskwQPSdW-4oBQWS9ZfKEdR1_QvZrVP8Tvm2I_tNa1w4jC_drwPXPsqGUkSxkV30seH5-7Wtubsgh4-b3stQPsS-sv3MeOzPFaF3x1UJqDA5w'></script></head>
+<body>
+  <div class="card">
+    <h1>Download Speed Test</h1>
+    <div class="sub">Measure your current download speed</div>
+
+    <div class="readout">
+      <div class="value" id="value">0</div>
+      <div class="unit">Mbps</div>
+    </div>
+
+    <div class="status" id="status">Ready to test</div>
+    <button id="startBtn">Start Test</button>
+
+    <footer>© <span class="name">Bappa Ghosh</span>. All rights reserved.</footer>
+  </div>
+
+<script>
+  const valueEl = document.getElementById('value');
+  const statusEl = document.getElementById('status');
+  const btn = document.getElementById('startBtn');
+
+  function show(mbps) {
+    valueEl.textContent = mbps >= 100 ? Math.round(mbps) : mbps.toFixed(1);
+  }
+
+  const TEST_FILES = [
+    "https://speed.cloudflare.com/__down?bytes=25000000",
+    "https://proof.ovh.net/files/10Mb.dat"
+  ];
+
+  async function runTest() {
+    btn.disabled = true;
+    show(0);
+    valueEl.textContent = "0";
+    statusEl.textContent = "Connecting…";
+
+    let success = false;
+    for (const base of TEST_FILES) {
+      const url = base + (base.includes('?') ? '&' : '?') + 'cacheBust=' + Date.now();
+      try { await measure(url); success = true; break; } catch (e) {}
+    }
+
+    if (!success) statusEl.textContent = "Test failed — check your connection and try again.";
+    btn.disabled = false;
+  }
+
+  async function measure(url) {
+    const start = performance.now();
+    const resp = await fetch(url, { cache: "no-store" });
+    if (!resp.ok || !resp.body) throw new Error("bad response");
+
+    const reader = resp.body.getReader();
+    let received = 0;
+    statusEl.textContent = "Testing download speed…";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.length;
+      const elapsed = (performance.now() - start) / 1000;
+      if (elapsed > 0.15) show((received * 8) / elapsed / 1e6);
+    }
+
+    const totalElapsed = (performance.now() - start) / 1000;
+    const finalMbps = (received * 8) / totalElapsed / 1e6;
+    show(finalMbps);
+    statusEl.textContent = `Done · ${(received/1e6).toFixed(1)} MB in ${totalElapsed.toFixed(1)} s`;
+  }
+
+  btn.addEventListener('click', runTest);
+</script>
+</body>
+</html>
