@@ -54,15 +54,38 @@
     opacity: .6;
   }
   h1 {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 800;
     letter-spacing: .3px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     background: linear-gradient(90deg, #2dd4bf, #38bdf8, #a78bfa);
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .sub { color: var(--muted); font-size: .88rem; margin-bottom: 34px; }
+  .sub { color: var(--muted); font-size: 1.05rem; margin-bottom: 34px; }
+
+  .ipbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: .82rem;
+    font-weight: 600;
+  }
+  .chip .label { color: var(--muted); font-weight: 500; }
+  .chip .ip { color: #22c55e; }
+  .chip .country { color: var(--accent); }
+
 
   .readout { margin: 10px 0 6px; }
   .value {
@@ -112,11 +135,16 @@
     font-weight: 700;
   }
 </style>
-<script type='text/javascript' nonce='B4BAlaxlLzvo8M+vegglMA==' src='https://arena.ai/_vK3dIj8aPCYmetIJ30k2d7xe_IwvdLEokxoIJLbZAgJyM1UkPSj5Uwjd3rrQumcZ8AJ4-r6FiGTDoc6GaC63eq84ivYmLYwFbZur30v4Rb7BE1BvQlkwfgV1zo0by_JLi79A29cubjkxvV2M5-hxovuUm6h0At2DM5eCs-7ZMU2CfvaLh8HIJOQQgbEq2GrmRAub9sAhNpVAUVPyTyYemRKwK1EO4HCJ8a59kuTQ7f5WLT9y-KlNvd742Dezq4uIufcrV6l8Rnp0MkXI3AmT8CcTB3Sq9GP-S_77xGlC7HMieg89ApqJUqfgnv7v8vwmA-4_P3pvjHxRTnK40xmFHtyOwBcnCruo60lZ-vC5VwyMw9d7NvOQklmiOvSe-kb8tTycLhPQec9WyycWp2MAwtdC4WHZpvCpKIA7Yi-SPU3MmRejEtSqRHbOB5YFPuXjwIDj1oGbK_1camAyv-USyJCheybPMncjkTereiUCCBr3sKwLy0rRK5F1qyxnk8MFFZI6tmLq-QRvL1IvN9-EQ'></script></head>
+</head>
 <body>
   <div class="card">
     <h1>Download Speed Test</h1>
     <div class="sub">Measure your current download speed</div>
+
+    <div class="ipbar">
+      <span class="chip"><span class="label">IP</span> <span class="ip" id="ip">Loading…</span></span>
+      <span class="chip"><span class="country" id="country">📍 …</span></span>
+    </div>
 
     <div class="readout">
       <div class="value" id="value">0</div>
@@ -133,6 +161,43 @@
   const valueEl = document.getElementById('value');
   const statusEl = document.getElementById('status');
   const btn = document.getElementById('startBtn');
+  const ipEl = document.getElementById('ip');
+  const countryEl = document.getElementById('country');
+
+  // Fetch public IP + country, with fallback providers.
+  async function loadIPInfo() {
+    try {
+      const r = await fetch('https://ipapi.co/json/');
+      if (r.ok) {
+        const d = await r.json();
+        ipEl.textContent = d.ip || 'Unavailable';
+        const flag = d.country_code ? countryFlag(d.country_code) : '📍';
+        countryEl.textContent = `${flag} ${d.country_name || d.country || 'Unknown'}`;
+        return;
+      }
+      throw new Error('primary failed');
+    } catch (e) {
+      try {
+        const r2 = await fetch('https://ipwho.is/');
+        const d2 = await r2.json();
+        ipEl.textContent = d2.ip || 'Unavailable';
+        const flag = d2.country_code ? countryFlag(d2.country_code) : '📍';
+        countryEl.textContent = `${flag} ${d2.country || 'Unknown'}`;
+      } catch (e2) {
+        ipEl.textContent = 'Unavailable';
+        countryEl.textContent = '📍 Unknown';
+      }
+    }
+  }
+
+  // Convert a 2-letter country code into a flag emoji.
+  function countryFlag(code) {
+    if (!code || code.length !== 2) return '📍';
+    return code.toUpperCase().replace(/./g, c =>
+      String.fromCodePoint(127397 + c.charCodeAt(0)));
+  }
+
+  loadIPInfo();
 
   function show(mbps) {
     valueEl.textContent = mbps >= 100 ? Math.round(mbps) : mbps.toFixed(1);
@@ -184,5 +249,5 @@
 
   btn.addEventListener('click', runTest);
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0500077ede3afce',t:'MTc4MDMzNTYwOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
